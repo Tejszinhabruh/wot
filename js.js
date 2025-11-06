@@ -1,18 +1,30 @@
-function changeScore(id, amount) {
-     const scoreEl = document.getElementById(id);
-     let score = parseInt(scoreEl.textContent);
-     score += amount;
-     scoreEl.textContent = score;
+function changeScore(id, value) {
+  const scoreElement = document.getElementById(id);
+  let score = parseInt(scoreElement.textContent) || 0;
+  score += value;
+  scoreElement.textContent = score;
+  saveScores();
 }
 
-const observer = new MutationObserver(() => {
-  clearTimeout(window.autosaveTimer);
-  window.autosaveTimer = setTimeout(saveToLocalStorage, 500);
-});
 
-observer.observe(document.getElementById('board'), {
-  childList: true,
-  subtree: true,
-  characterData: true
-});
 
+function saveScores() {
+  const scores = {};
+  document.querySelectorAll('.score').forEach(el => {
+    scores[el.id] = parseInt(el.textContent);
+  });
+  localStorage.setItem('scores', JSON.stringify(scores));
+}
+
+
+function loadScores() {
+  const saved = localStorage.getItem('scores');
+  if (saved) {
+    const scores = JSON.parse(saved);
+    for (const id in scores) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = scores[id];
+    }
+  }
+}
+window.addEventListener('DOMContentLoaded', loadScores);
